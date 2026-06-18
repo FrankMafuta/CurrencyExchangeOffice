@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net48</TargetFramework>
+
+		<RootNamespace>CurrencyExchangeOffice.WcfService</RootNamespace>
+		<AssemblyName>CurrencyExchangeOffice.WcfService</AssemblyName>
+
+		<LangVersion>latest</LangVersion>
+		<Nullable>disable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="System.ServiceModel" />
+		<Reference Include="System.Runtime.Serialization" />
+		<Reference Include="Microsoft.CSharp" />
+	  <Reference Include="System.Net.Http" />
+	</ItemGroup>
+
+</Project>
