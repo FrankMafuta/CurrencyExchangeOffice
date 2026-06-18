@@ -1,0 +1,196 @@
+<UserControl x:Class="CurrencyExchangeClient.Views.ExchangeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{StaticResource BgDark}">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </UserControl.Resources>
+
+    <Grid Margin="24,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="360"/>
+            <ColumnDefinition Width="24"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ── LEFT: INPUT PANEL ───────────────────────────────────────────── -->
+        <StackPanel Grid.Column="0">
+
+            <TextBlock Text="Currency Exchange"
+                       Style="{StaticResource H2}"
+                       Margin="0,0,0,20"/>
+
+            <!-- Currency code -->
+            <TextBlock Text="Currency Code"
+                       Style="{StaticResource Muted}"
+                       Margin="0,0,0,6"/>
+            <TextBox Style="{StaticResource DarkTextBox}"
+                     Text="{Binding CurrencyCode, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,16"/>
+
+            <!-- Amount -->
+            <TextBlock Text="Amount"
+                       Style="{StaticResource Muted}"
+                       Margin="0,0,0,6"/>
+            <TextBox Style="{StaticResource DarkTextBox}"
+                     Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
+                     Margin="0,0,0,8"/>
+
+            <TextBlock Style="{StaticResource Muted}"
+                       Margin="0,0,0,24">
+                <Run Text="For BUY: amount = PLN to spend.  "/>
+                <LineBreak/>
+                <Run Text="For SELL: amount = foreign currency to sell."/>
+            </TextBlock>
+
+            <!-- Buttons -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="💵  Buy"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding BuyCommand}"
+                        Height="44"/>
+
+                <Button Grid.Column="2"
+                        Content="🏦  Sell"
+                        Style="{StaticResource DangerButton}"
+                        Command="{Binding SellCommand}"
+                        Height="44"/>
+            </Grid>
+
+            <!-- Status -->
+            <TextBlock Text="{Binding StatusMessage}"
+                       Style="{StaticResource Muted}"
+                       TextWrapping="Wrap"/>
+
+            <!-- Result card -->
+            <Border Margin="0,20,0,0"
+                    Background="{StaticResource BgPanel}"
+                    CornerRadius="10"
+                    Padding="20"
+                    Visibility="{Binding HasResult, Converter={StaticResource BoolToVis}}">
+
+                <StackPanel>
+
+                    <TextBlock Text="Transaction Result"
+                               Style="{StaticResource H2}"
+                               Margin="0,0,0,10"/>
+
+                    <Separator Background="{StaticResource Border}"/>
+
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Sent -->
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="You sent:"
+                                   Style="{StaticResource Muted}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                   Style="{StaticResource Body}">
+                            <Run Text="{Binding LastResult.AmountSent, StringFormat=N2}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding LastResult.FromCurrency}"
+                                 Foreground="{StaticResource Accent}"/>
+                        </TextBlock>
+
+                        <!-- Received -->
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="You received:"
+                                   Style="{StaticResource Muted}"
+                                   Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   Style="{StaticResource Body}"
+                                   Margin="0,6,0,0">
+                            <Run Text="{Binding LastResult.AmountReceived, StringFormat=N2}"/>
+                            <Run Text=" "/>
+                            <Run Text="{Binding LastResult.ToCurrency}"
+                                 Foreground="{StaticResource Accent}"/>
+                        </TextBlock>
+
+                        <!-- Rate -->
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Text="Rate used:"
+                                   Style="{StaticResource Muted}"
+                                   Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1"
+                                   Text="{Binding LastResult.RateUsed, StringFormat=N6}"
+                                   Style="{StaticResource Body}"
+                                   Margin="0,6,0,0"/>
+
+                        <!-- Time -->
+                        <TextBlock Grid.Row="3" Grid.Column="0"
+                                   Text="Time:"
+                                   Style="{StaticResource Muted}"
+                                   Margin="0,6,0,0"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1"
+                                   Text="{Binding LastResult.Timestamp, StringFormat=HH:mm:ss}"
+                                   Style="{StaticResource Body}"
+                                   Margin="0,6,0,0"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- ── RIGHT: HISTORY LIST ─────────────────────────────────────────── -->
+        <StackPanel Grid.Column="2">
+
+            <TextBlock Text="Transaction History"
+                       Style="{StaticResource H2}"
+                       Margin="0,0,0,12"/>
+
+            <DataGrid ItemsSource="{Binding History}"
+                      AutoGenerateColumns="False"
+                      IsReadOnly="True"
+                      CanUserResizeRows="False"
+                      HeadersVisibility="Column"
+                      MaxHeight="540">
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Type"
+                                        Binding="{Binding FromCurrency}"
+                                        Width="60"/>
+                    <DataGridTextColumn Header="Sent"
+                                        Binding="{Binding AmountSent, StringFormat=N2}"
+                                        Width="80"/>
+                    <DataGridTextColumn Header="From"
+                                        Binding="{Binding FromCurrency}"
+                                        Width="55"/>
+                    <DataGridTextColumn Header="Received"
+                                        Binding="{Binding AmountReceived, StringFormat=N2}"
+                                        Width="90"/>
+                    <DataGridTextColumn Header="To"
+                                        Binding="{Binding ToCurrency}"
+                                        Width="50"/>
+                    <DataGridTextColumn Header="Rate"
+                                        Binding="{Binding RateUsed, StringFormat=N4}"
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Time"
+                                        Binding="{Binding Timestamp, StringFormat=HH:mm:ss}"
+                                        Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Text="History resets when the application is closed."
+                       Style="{StaticResource Muted}"
+                       Margin="0,8,0,0"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>
